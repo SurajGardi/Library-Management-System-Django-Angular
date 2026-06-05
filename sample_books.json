@@ -1,0 +1,20 @@
+[
+  {
+    "isbn": "123456",
+    "title": "Python Basics",
+    "author": "John Doe",
+    "available": true
+  },
+  {
+    "isbn": "789012",
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "available": true
+  },
+  {
+    "isbn": "345678",
+    "title": "The Pragmatic Programmer",
+    "author": "Andy Hunt",
+    "available": true
+  }
+]

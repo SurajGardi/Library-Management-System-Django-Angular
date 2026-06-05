@@ -1,0 +1,31 @@
+<!-- Navigation Header (Shown only when logged in) -->
+<header *ngIf="authService.isLoggedIn()" class="lms-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-icon">📚</span>
+      <span class="brand-name">Library Manager</span>
+    </div>
+    
+    <nav class="nav-links">
+      <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">Dashboard</a>
+      <a routerLink="/books" routerLinkActive="active-link" class="nav-item">Books Catalog</a>
+      <a routerLink="/transactions" routerLinkActive="active-link" class="nav-item">Borrow & Return</a>
+      <a *ngIf="authService.isAdmin()" routerLink="/members" routerLinkActive="active-link" class="nav-item">Manage Members</a>
+    </nav>
+    
+    <div class="user-profile">
+      <div class="profile-info">
+        <span class="profile-name">{{ authService.getUserName() }}</span>
+        <span class="profile-role">({{ authService.getSession()?.role }})</span>
+      </div>
+      <button (click)="onLogout()" class="btn btn-secondary btn-logout">
+        Logout 🚪
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Workspace Router Outlet -->
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>

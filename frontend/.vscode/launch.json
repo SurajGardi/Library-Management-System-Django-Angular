@@ -1,0 +1,15 @@
+
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debugger",
+      "python": "D:/Inteliment/Training Assignments/Library_Management_System/venv",
+      "type": "debugpy",
+      "request": "launch",
+      "program":  "D:/Inteliment/Training Assignments/Library_Management_System/backend/manage.py", 
+      "console": "integratedTerminal",
+      "args": ["runserver"]
+    }
+  ]
+}
