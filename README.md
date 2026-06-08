@@ -9,7 +9,7 @@ This application implements all core OOP models, custom decorators for logging a
 ## 🛠️ Tech Stack & Requirements
 - **Backend**: Python 3.8+, Django 5.x+, Django REST Framework, Django CORS Headers, PostgreSQL client (`psycopg2-binary`)
 - **Database**: PostgreSQL (already configured)
-- **Frontend**: Angular 18+ (Standalone component architecture), RxJS, Reactive CSS
+- **Frontend**: Angular 21 (Standalone component architecture with separate TS, HTML, and CSS files), RxJS, Reactive CSS
 
 ---
 
@@ -28,7 +28,12 @@ Library_Management_System/
 │       └── tests.py           # Unit tests (6 test cases passing)
 ├── frontend/                  # Angular Web Client
 │   ├── src/app/
-│   │   ├── components/        # Login, Dashboard, Books, Members, Transactions
+│   │   ├── components/        # Standard Angular components (separated TS, HTML, and CSS)
+│   │   │   ├── books/         # BooksComponent (books.component.ts, .html, .css)
+│   │   │   ├── dashboard/     # DashboardComponent (dashboard.component.ts, .html, .css)
+│   │   │   ├── login/         # LoginComponent (login.component.ts, .html, .css)
+│   │   │   ├── members/       # MembersComponent (members.component.ts, .html, .css)
+│   │   │   └── transactions/  # TransactionsComponent (transactions.component.ts, .html, .css)
 │   │   ├── services/          # API & Auth Services
 │   │   ├── app.component.*    # Root component & navbar layout
 │   │   ├── app.config.ts      # Standalone bootstrapping (HttpClient config)

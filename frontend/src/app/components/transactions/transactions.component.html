@@ -1,0 +1,181 @@
+<div class="app-container">
+  <div class="header-actions">
+    <div>
+      <h1>Borrowing Operations</h1>
+      <p>View your active rentals, borrow history, and audit late returns</p>
+    </div>
+  </div>
+
+  <!-- Feedbacks -->
+  <div *ngIf="errorMessage" class="lms-alert lms-alert-error">
+    <span>⚠️</span> {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="lms-alert lms-alert-success">
+    <span>✅</span> {{ successMessage }}
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="tab-container">
+    <!-- Tabs selector -->
+    <div class="tabs">
+      <button [class.active]="activeTab === 'history'" (click)="selectTab('history')" class="tab-btn">
+        📜 My Borrowing History
+      </button>
+      <button *ngIf="isAdmin" [class.active]="activeTab === 'overdue'" (click)="selectTab('overdue')" class="tab-btn">
+        🚨 Overdue Audit (Generator-based)
+      </button>
+    </div>
+
+    <div class="tab-content lms-card">
+      <!-- SUB-TAB 1: BORROW HISTORY -->
+      <div *ngIf="activeTab === 'history'">
+        <div class="history-header" *ngIf="isAdmin">
+          <label class="form-label" for="searchMemberId">View Borrow History of Specific Member:</label>
+          <div class="search-form">
+            <input 
+              type="text" 
+              id="searchMemberId" 
+              [(ngModel)]="historyMemberId" 
+              class="form-control" 
+              placeholder="Enter Member ID (e.g. M001)"
+            />
+            <button (click)="fetchHistory()" class="btn btn-primary">Query</button>
+          </div>
+        </div>
+
+        <div class="table-container margin-top">
+          <table class="lms-table">
+            <thead>
+              <tr>
+                <th>Book</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Return Date</th>
+                <th>Late Fee</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of history">
+                <td>
+                  <strong>{{ record.book_title }}</strong><br/>
+                  <span class="text-muted text-xs">ISBN: {{ record.isbn }}</span>
+                </td>
+                <td>{{ record.borrow_date }}</td>
+                <td>{{ record.due_date }}</td>
+                <td>{{ record.return_date || '—' }}</td>
+                <td>
+                  <span [class.text-danger]="record.late_fee > 0">
+                    {{ record.late_fee | currency:'USD' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'badge-success': record.status === 'Returned',
+                    'badge-warning': record.status === 'Borrowed',
+                    'badge-danger': record.status === 'Overdue'
+                  }">
+                    {{ record.status }}
+                  </span>
+                </td>
+                <td>
+                  <button 
+                    *ngIf="record.status !== 'Returned'" 
+                    (click)="openReturnModal(record.isbn, record.book_title)" 
+                    class="btn btn-success btn-xs"
+                  >
+                    Return
+                  </button>
+                  <span *ngIf="record.status === 'Returned'" class="text-muted text-xs">Closed</span>
+                </td>
+              </tr>
+              <tr *ngIf="loading">
+                <td colspan="7" class="empty-row">🔄 Loading records... Please wait.</td>
+              </tr>
+              <tr *ngIf="!loading && history.length === 0">
+                <td colspan="7" class="empty-row">No borrow records found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 2: OVERDUE AUDIT -->
+      <div *ngIf="activeTab === 'overdue'">
+        <h3>Currently Overdue Borrowings</h3>
+        <p class="text-xs text-muted mb-4">
+          This list is generated on-demand by calling a <strong>Python Generator</strong> on the backend to yield active overdue items.
+        </p>
+
+        <div class="table-container margin-top">
+          <table class="lms-table">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Book / ISBN</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Outstanding Fee</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of overdueBooks">
+                <td>
+                  <strong>{{ record.member_name }}</strong><br/>
+                  <span class="text-muted text-xs">ID: {{ record.member_id }}</span>
+                </td>
+                <td>
+                  <strong>{{ record.book_title }}</strong><br/>
+                  <span class="text-muted text-xs">ISBN: {{ record.isbn }}</span>
+                </td>
+                <td>{{ record.borrow_date }}</td>
+                <td>{{ record.due_date }}</td>
+                <td>
+                  <span class="text-danger font-bold">
+                    {{ record.current_fee | currency:'USD' }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="loading">
+                <td colspan="5" class="empty-row">🔍 Auditing overdue books... Please wait.</td>
+              </tr>
+              <tr *ngIf="!loading && overdueBooks.length === 0">
+                <td colspan="5" class="empty-row">No overdue books! Outstanding records are in good shape.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RETURN SIMULATOR MODAL -->
+  <div *ngIf="showReturnModal" class="modal-overlay">
+    <div class="modal-content lms-card">
+      <h3>Return Book: {{ returnModalBookTitle }}</h3>
+      <p class="text-xs text-muted">
+        Standard borrow period is 7 days. You can submit today's return or select a future date to simulate and verify the <strong>$1.00/day late fee calculation</strong>.
+      </p>
+
+      <form (ngSubmit)="submitReturn()">
+        <div class="form-group margin-top">
+          <label class="form-label" for="returnDate">Simulate Return Date:</label>
+          <input 
+            type="date" 
+            id="returnDate" 
+            name="returnDate" 
+            class="form-control" 
+            [(ngModel)]="simulatedReturnDate" 
+            required
+          />
+        </div>
+
+        <div class="modal-buttons">
+          <button type="submit" class="btn btn-success">Confirm Return</button>
+          <button type="button" (click)="closeReturnModal()" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,54 @@
+<div class="login-wrapper">
+  <div class="login-box lms-card">
+    <div class="header">
+      <div class="logo">📚</div>
+      <h2>Library Portal</h2>
+      <p>Sign in to access books, borrow records & configurations</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="lms-alert lms-alert-error">
+      <span>⚠️</span> {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="lms-alert lms-alert-success">
+      <span>✅</span> {{ successMessage }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          class="form-control" 
+          [(ngModel)]="email" 
+          placeholder="e.g. alice@library.com"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="form-control" 
+          [(ngModel)]="password" 
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full" [disabled]="loading">
+        {{ loading ? 'Signing in...' : 'Sign In' }}
+      </button>
+    </form>
+
+    <div class="info-note">
+      <p><strong>Demo Accounts:</strong></p>
+      <p>Admin: Admin User (will be auto-seeded) or register custom users via the Admin dashboard.</p>
+    </div>
+  </div>
+</div>

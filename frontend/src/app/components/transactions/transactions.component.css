@@ -1,0 +1,98 @@
+.header-actions {
+  margin-bottom: 2rem;
+}
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: -1px;
+}
+.tab-btn {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--border-color);
+  border-bottom: none;
+  background-color: var(--bg-main);
+  color: var(--text-muted);
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.tab-btn:hover {
+  color: var(--text-main);
+  background-color: var(--border-color);
+}
+.tab-btn.active {
+  background-color: var(--bg-card);
+  color: var(--primary);
+  border-color: var(--border-color);
+  border-bottom: 2px solid var(--bg-card);
+  z-index: 2;
+}
+.tab-content {
+  border-top-left-radius: 0;
+}
+.history-header {
+  padding: 1rem;
+  background-color: var(--bg-main);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+.search-form {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+.margin-top {
+  margin-top: 1.5rem;
+}
+.text-xs {
+  font-size: 0.8rem;
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.text-danger {
+  color: var(--danger);
+}
+.font-bold {
+  font-weight: 600;
+}
+.empty-row {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.btn-xs {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-content {
+  width: 90%;
+  max-width: 480px;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}

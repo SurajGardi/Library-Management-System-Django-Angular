@@ -1,0 +1,88 @@
+<div class="app-container">
+  <div class="welcome-banner lms-card">
+    <div class="welcome-text">
+      <h1>Welcome back, {{ userName }}!</h1>
+      <p>Role: <span class="badge" [ngClass]="isAdmin ? 'badge-warning' : 'badge-success'">{{ userRole }}</span></p>
+    </div>
+    <div class="welcome-date">
+      <p>{{ currentDate | date:'fullDate' }}</p>
+    </div>
+  </div>
+
+  <!-- Statistics Widgets -->
+  <div class="lms-grid">
+    <div class="stat-card lms-card">
+      <div class="stat-icon">📚</div>
+      <div class="stat-content">
+        <h3>Total Catalog</h3>
+        <h2>{{ bookCount }}</h2>
+        <p>Books in Library</p>
+      </div>
+    </div>
+
+    <div class="stat-card lms-card">
+      <div class="stat-icon text-success">✔️</div>
+      <div class="stat-content">
+        <h3>Available</h3>
+        <h2>{{ availableBookCount }}</h2>
+        <p>Ready to borrow</p>
+      </div>
+    </div>
+
+    <div class="stat-card lms-card">
+      <div class="stat-icon text-danger">🔄</div>
+      <div class="stat-content">
+        <h3>Active Loans</h3>
+        <h2>{{ borrowedBookCount }}</h2>
+        <p>Currently checked out</p>
+      </div>
+    </div>
+
+    <div *ngIf="isAdmin" class="stat-card lms-card">
+      <div class="stat-icon text-warning">👥</div>
+      <div class="stat-content">
+        <h3>Members</h3>
+        <h2>{{ memberCount }}</h2>
+        <p>Registered readers</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links Section -->
+  <div class="quick-links-section">
+    <h2>Quick Operations</h2>
+    <div class="links-grid">
+      <a routerLink="/books" class="link-card lms-card">
+        <span class="link-icon">📖</span>
+        <div>
+          <h4>Search & View Books</h4>
+          <p>Explore catalog, check book details or import new collections.</p>
+        </div>
+      </a>
+
+      <a routerLink="/transactions" class="link-card lms-card">
+        <span class="link-icon">💳</span>
+        <div>
+          <h4>Borrow & Return</h4>
+          <p>Borrow new titles, return checked out items, and pay late fees.</p>
+        </div>
+      </a>
+
+      <a *ngIf="isAdmin" routerLink="/members" class="link-card lms-card">
+        <span class="link-icon">➕</span>
+        <div>
+          <h4>Register Member</h4>
+          <p>Create new student or library accounts to permit borrowings.</p>
+        </div>
+      </a>
+
+      <a *ngIf="isAdmin" routerLink="/transactions" class="link-card lms-card">
+        <span class="link-icon">⏳</span>
+        <div>
+          <h4>Overdue Audits</h4>
+          <p>Utilize generator reporting to audit late books & fees.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

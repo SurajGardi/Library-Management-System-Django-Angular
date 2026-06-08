@@ -1,0 +1,124 @@
+<div class="app-container">
+  <div class="header-actions">
+    <div>
+      <h1>Member Accounts</h1>
+      <p>Register new readers and review access privileges</p>
+    </div>
+    <button (click)="openRegisterModal()" class="btn btn-primary">
+      ➕ Register New Member
+    </button>
+  </div>
+
+  <!-- Feedbacks -->
+  <div *ngIf="errorMessage" class="lms-alert lms-alert-error">
+    <span>⚠️</span> {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="lms-alert lms-alert-success">
+    <span>✅</span> {{ successMessage }}
+  </div>
+
+  <!-- Members list table -->
+  <div class="table-container">
+    <table class="lms-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Full Name</th>
+          <th>Email Address</th>
+          <th>System Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let member of members">
+          <td><strong>{{ member.member_id }}</strong></td>
+          <td>{{ member.name }}</td>
+          <td>{{ member.email }}</td>
+          <td>
+            <span class="badge" [ngClass]="member.role === 'Admin' ? 'badge-warning' : 'badge-success'">
+              {{ member.role }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="loading">
+          <td colspan="4" class="empty-row">🔄 Loading registered members... Please wait.</td>
+        </tr>
+        <tr *ngIf="!loading && members.length === 0">
+          <td colspan="4" class="empty-row">No registered members found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REGISTER MODAL -->
+  <div *ngIf="showRegisterModal" class="modal-overlay">
+    <div class="modal-content lms-card">
+      <h3>Register Member Account</h3>
+      <form (ngSubmit)="registerMember()">
+        <div class="form-group">
+          <label class="form-label" for="memberId">Member ID (Unique)</label>
+          <input 
+            type="text" 
+            id="memberId" 
+            name="memberId" 
+            class="form-control" 
+            [(ngModel)]="newMember.member_id" 
+            placeholder="e.g. M004"
+            required
+          />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="memberName">Full Name</label>
+          <input 
+            type="text" 
+            id="memberName" 
+            name="memberName" 
+            class="form-control" 
+            [(ngModel)]="newMember.name" 
+            placeholder="e.g. Bob Johnson"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="memberEmail">Email Address</label>
+          <input 
+            type="email" 
+            id="memberEmail" 
+            name="memberEmail" 
+            class="form-control" 
+            [(ngModel)]="newMember.email" 
+            placeholder="e.g. bob@example.com"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="memberPassword">Access Password</label>
+          <input 
+            type="password" 
+            id="memberPassword" 
+            name="memberPassword" 
+            class="form-control" 
+            [(ngModel)]="newMember.password" 
+            placeholder="••••••••"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="memberRole">Role</label>
+          <select id="memberRole" name="memberRole" class="form-control" [(ngModel)]="newMember.role">
+            <option value="Member">Member (Borrow/Return only)</option>
+            <option value="Admin">Admin (Full administrative privileges)</option>
+          </select>
+        </div>
+        
+        <div class="modal-buttons">
+          <button type="submit" class="btn btn-primary">Register</button>
+          <button type="button" (click)="closeRegisterModal()" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

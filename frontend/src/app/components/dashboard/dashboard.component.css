@@ -1,0 +1,80 @@
+.welcome-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  margin-bottom: 2rem;
+}
+.welcome-banner h1 {
+  color: white;
+  margin-bottom: 0.25rem;
+}
+.welcome-banner p {
+  color: rgba(255, 255, 255, 0.85);
+}
+.welcome-date {
+  text-align: right;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.stat-icon {
+  font-size: 3rem;
+  background-color: var(--primary-light);
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+.text-success {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+.text-danger {
+  background-color: rgba(239, 68, 110, 0.1);
+}
+.text-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+}
+.stat-content h3 {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 0.125rem;
+}
+.stat-content h2 {
+  font-size: 2rem;
+  margin: 0;
+}
+.quick-links-section {
+  margin-top: 3rem;
+}
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+}
+.link-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+.link-card:hover h4 {
+  color: var(--primary);
+}
+.link-icon {
+  font-size: 2rem;
+  padding: 0.5rem;
+  background-color: var(--bg-main);
+  border-radius: 8px;
+}
