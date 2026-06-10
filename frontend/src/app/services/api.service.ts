@@ -7,7 +7,8 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'http://127.0.0.1:8000/api';
+  private baseUrl = 'https://library-management-backend-rp3o.onrender.com/api';
+  // private baseUrl = 'http://127.0.0.1:8000/api';
 
   constructor(
     private http: HttpClient,
