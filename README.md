@@ -29,7 +29,8 @@ Library_Management_System/
 ├── frontend/                  # Angular Web Client
 │   ├── src/app/
 │   │   ├── components/        # Standard Angular components (separated TS, HTML, and CSS)
-│   │   │   ├── books/         # BooksComponent (books.component.ts, .html, .css)
+│   │   │   ├── books/         # BooksComponent (books.component.ts, .html, .css)         => Parent Component
+|   |   |   |   └── book-form  # BookFormComponent (book-form.component.ts, .html, . css) => Child Component
 │   │   │   ├── dashboard/     # DashboardComponent (dashboard.component.ts, .html, .css)
 │   │   │   ├── login/         # LoginComponent (login.component.ts, .html, .css)
 │   │   │   ├── members/       # MembersComponent (members.component.ts, .html, .css)
