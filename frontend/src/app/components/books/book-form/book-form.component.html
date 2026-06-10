@@ -1,0 +1,50 @@
+<div *ngIf="showModal" class="modal-overlay">
+  <div class="modal-content lms-card">
+    <h3>{{ isEditMode ? 'Modify Book' : 'Add New Book' }}</h3>
+    <form (ngSubmit)="onSave()">
+      <div class="form-group">
+        <label class="form-label" for="bookIsbn">ISBN Number</label>
+        <input 
+          type="text" 
+          id="bookIsbn" 
+          name="bookIsbn" 
+          class="form-control" 
+          [(ngModel)]="activeBook.isbn" 
+          required
+          [disabled]="isEditMode"
+        />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="bookTitle">Title</label>
+        <input 
+          type="text" 
+          id="bookTitle" 
+          name="bookTitle" 
+          class="form-control" 
+          [(ngModel)]="activeBook.title" 
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="bookAuthor">Author</label>
+        <input 
+          type="text" 
+          id="bookAuthor" 
+          name="bookAuthor" 
+          class="form-control" 
+          [(ngModel)]="activeBook.author" 
+          required
+        />
+      </div>
+      
+      <div class="modal-buttons">
+        <button type="submit" class="btn btn-primary">
+          {{ isEditMode ? 'Update' : 'Create' }}
+        </button>
+        <button type="button" (click)="onCancel()" class="btn btn-secondary">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

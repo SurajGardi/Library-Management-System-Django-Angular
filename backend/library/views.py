@@ -8,6 +8,7 @@ import datetime
 
 from .models.book import Book
 from .models.member import Member, BorrowRecord
+from .models.library import Library
 from .utils.date_utils import calculate_late_fee, parse_date, yield_overdue_records
 from .utils.file_io import export_books_to_csv_string, import_books_from_csv_string
 
@@ -287,24 +288,12 @@ def borrow_book_view(request):
         if not book.available:
             return JsonResponse({'error': f"Book '{book.title}' is currently borrowed by another member."}, status=400)
             
-        # Standard borrow calculations
-        borrow_date = datetime.date.today()
-        due_date = borrow_date + datetime.timedelta(days=7)
-        
         # Check if the member has already borrowed this specific book and hasn't returned it
         if BorrowRecord.objects.filter(member=request.user_member, book=book, return_date__isnull=True).exists():
             return JsonResponse({'error': 'You already have an active borrowing record for this book.'}, status=400)
             
-        # Transaction
-        book.available = False
-        book.save()
-        
-        record = BorrowRecord.objects.create(
-            member=request.user_member,
-            book=book,
-            borrow_date=borrow_date,
-            due_date=due_date
-        )
+        # Transaction utilizing OOP Library helper
+        record = Library.borrow_book(request.user_member, book)
         
         return JsonResponse({
             'message': f"Book '{book.title}' borrowed successfully.",
@@ -360,13 +349,8 @@ def return_book_view(request):
             
         late_fee = calculate_late_fee(record.borrow_date, return_date=ret_date, due_date=record.due_date)
         
-        # Transaction
-        book.available = True
-        book.save()
-        
-        record.return_date = ret_date
-        record.late_fee = late_fee
-        record.save()
+        # Transaction utilizing OOP Library helper
+        Library.return_book(record, ret_date, late_fee)
         
         return JsonResponse({
             'message': f"Book '{book.title}' returned successfully.",

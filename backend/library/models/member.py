@@ -2,15 +2,21 @@ import hashlib
 from django.db import models
 from .book import Book
 
-class Member(models.Model):
+class Person(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+
+    class Meta:
+        abstract = True
+
+
+class Member(Person):
     ROLE_CHOICES = [
         ('Admin', 'Admin'),
         ('Member', 'Member'),
     ]
 
     member_id = models.CharField(max_length=50, unique=True)
-    name = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
     password_hash = models.CharField(max_length=64)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='Member')
 

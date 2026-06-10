@@ -135,3 +135,27 @@ To test late fee calculations without waiting:
 1. Log in as Admin (`admin@library.com`).
 2. Navigate to **Borrow & Return** -> **Overdue Audit (Generator-based)**.
 3. This view consumes the Python generator `yield_overdue_records()` on-demand, listing outstanding overdue books and their total accumulated fee values.
+
+---
+
+## 🧱 Core Concepts Implemented & Applied
+
+This project explicitly implements and demonstrates the following core concepts:
+
+### 1. Object-Oriented Programming (OOP)
+* **Classes**:
+  * **Book** ([book.py](file:///d:/Inteliment/Training%20Assignments/Library_Management_System/backend/library/models/book.py)): Django model class representing a book entity.
+  * **Member** ([member.py](file:///d:/Inteliment/Training%20Assignments/Library_Management_System/backend/library/models/member.py)): Django model class representing a system member (inherits from abstract `Person` class).
+  * **Library** ([library.py](file:///d:/Inteliment/Training%20Assignments/Library_Management_System/backend/library/models/library.py)): OOP coordinator/service class encapsulating core system operations like borrowing and returning books.
+* **Inheritance / Mixins**:
+  * **Person** ([member.py](file:///d:/Inteliment/Training%20Assignments/Library_Management_System/backend/library/models/member.py)): Implemented Django **Abstract Base Class** containing common properties (`name` and `email`), which the `Member` class inherits from.
+
+### 2. Angular Parent ↔ Child Communication (Input / Output)
+* **Child Component**:
+  * **BookFormComponent** ([book-form.component.ts](file:///d:/Inteliment/Training%20Assignments/Library_Management_System/frontend/src/app/components/books/book-form/book-form.component.ts)): Handles the modal dialog for adding and editing library books.
+* **Parent Component**:
+  * **BooksComponent** ([books.component.ts](file:///d:/Inteliment/Training%20Assignments/Library_Management_System/frontend/src/app/components/books/books.component.ts)): Houses the library grid and manages catalog operations.
+* **Communication Interface**:
+  * **Parent to Child (`@Input()`)**: Employs `@Input() showModal`, `@Input() isEditMode`, and `@Input() activeBook` properties to pass state into the form.
+  * **Child to Parent (`@Output()`)**: Employs `@Output() save` and `@Output() cancel` `EventEmitter` signals to trigger callbacks on the parent component when the form is submitted or closed.
+
