@@ -1,3 +1,6 @@
+import os
+import dj_database_url
+
 """
 Django settings for library_project project.
 
@@ -20,10 +23,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ofz62vs5u5yad$azltb7busi+d@=s!$0i3yg(oriu2%sh(w@2='
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-dev-secret-key"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get(
+    "DEBUG",
+    "True"
+) == "True"
 
 ALLOWED_HOSTS = ['*']
 
@@ -44,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,17 +86,45 @@ WSGI_APPLICATION = 'library_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'library_db',
-        'USER': 'library_user',
-        'PASSWORD': 'library123',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-        'CONN_MAX_AGE': 600, # Keep connection alive for 10 minutes to prevent slow handshakes
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(DATABASE_URL)
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'library_db',
+            'USER': 'library_user',
+            'PASSWORD': 'library123',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+            'CONN_MAX_AGE': 600,
+        }
+    }
+
+# DATABASES = {
+#     'default': dj_database_url.parse(
+#         os.environ.get("DATABASE_URL")
+#     )
+# }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'library_db',
+#         'USER': 'library_user',
+#         'PASSWORD': 'library123',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#         'CONN_MAX_AGE': 600, # Keep connection alive for 10 minutes to prevent slow handshakes
+#     }
+# }
+
 
 
 # Password validation
@@ -141,3 +179,11 @@ CORS_ALLOW_HEADERS = [
     'x-member-id', # Inject custom authentication header
 ]
 
+
+STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)

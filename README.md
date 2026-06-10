@@ -14,6 +14,7 @@ This application implements all core OOP models, custom decorators for logging a
 ---
 
 ## 📂 Project Structure
+## 📂 Project Structure
 ```text
 Library_Management_System/
 ├── backend/                   # Django REST API project
