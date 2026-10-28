@@ -165,224 +165,784 @@ This project explicitly implements and demonstrates the following core concepts:
 
 ## ☁️ Production Deployment
 
-The Angular frontend of this project is deployed on **Vercel** and connected to the GitHub repository.
+The Library Management System is deployed using a three-tier production architecture:
 
-### Frontend Deployment – Vercel
+- **Frontend:** Angular 21 → Vercel
+- **Backend:** Django REST Framework → Render
+- **Database:** PostgreSQL → Neon
+- **Source Code:** GitHub
 
-The frontend is located inside the `frontend/` directory of the repository. Since the repository contains both the Django backend and Angular frontend, Vercel is configured to build and deploy only the Angular application.
+The production request flow is:
 
-#### 1. Push the Project to GitHub
+```text
+                         USER
+                           │
+                           │ HTTPS
+                           ▼
+                 ┌─────────────────────┐
+                 │    Angular 21       │
+                 │      Frontend       │
+                 │       Vercel        │
+                 └──────────┬──────────┘
+                            │
+                            │ HTTPS REST API
+                            ▼
+                 ┌─────────────────────┐
+                 │   Django REST API   │
+                 │       Backend       │
+                 │       Render        │
+                 └──────────┬──────────┘
+                            │
+                            │ PostgreSQL
+                            ▼
+                 ┌─────────────────────┐
+                 │     PostgreSQL      │
+                 │      Database       │
+                 │        Neon         │
+                 └─────────────────────┘
+```
 
-The complete project is maintained in a GitHub repository:
+---
 
-- Backend: Django REST Framework
-- Frontend: Angular 21
-- Database: PostgreSQL
+## 1. Prepare the Project for Production
 
-The repository structure is:
+Before deploying, the project was tested locally with:
+
+```text
+Angular 21
+       ↓
+Django REST Framework
+       ↓
+PostgreSQL
+```
+
+The repository contains both applications:
 
 ```text
 Library_Management_System/
+│
 ├── backend/
-└── frontend/
+│   ├── manage.py
+│   ├── library_project/
+│   ├── library/
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── package.json
+│   ├── angular.json
+│   └── src/
+│
+├── sample_books.csv
+├── sample_books.json
+└── README.md
 ```
 
-#### 2. Import the GitHub Repository into Vercel
+The complete project is pushed to GitHub.
 
-1. Sign in to Vercel.
-2. Select **Add New → Project**.
-3. Import the GitHub repository.
-4. Select the required repository and branch.
-5. Since the Angular application is inside the `frontend/` directory, configure the project root as:
+---
+
+# 2. Deploy PostgreSQL Database to Neon
+
+The database is deployed first because the Django backend needs a production database to connect to.
+
+### Step 1: Create a Neon Project
+
+Create a PostgreSQL project in Neon.
+
+After creating the project, Neon provides a PostgreSQL connection string similar to:
 
 ```text
-frontend
+postgresql://username:password@host/database?sslmode=require
 ```
 
-#### 3. Configure the Angular Build
+This connection string contains the information required by Django to connect to PostgreSQL.
 
-In Vercel's **Build and Deployment** settings, configure the Angular project as follows:
+### Step 2: Configure Django Database Settings
 
-| Setting | Value |
-|---|---|
-| Framework Preset | Other / Angular |
-| Root Directory | `frontend` |
-| Build Command | `ng build` |
-| Output Directory | `dist/frontend` |
+The local PostgreSQL configuration should not be hardcoded for production.
 
-The build command compiles the Angular application into production-ready static files.
-
-The generated production files are placed inside:
-
-```text
-frontend/dist/frontend/
-```
-
-> **Note:** The exact output directory depends on the Angular project's `angular.json` configuration. Always verify the generated `dist` structure after running `ng build`.
-
-#### 4. Install Dependencies
-
-Vercel automatically installs the Node.js dependencies from the `frontend/package.json` file during deployment.
-
-The Angular application uses:
-
-- Angular 21
-- TypeScript
-- RxJS
-- Angular Router
-- Angular HTTP Client
-- Standalone Component Architecture
-
-#### 5. Deploy the Application
-
-After configuring the project, click **Deploy**.
-
-Vercel performs the following process:
-
-```text
-GitHub Repository
-       ↓
-Vercel detects project
-       ↓
-Uses frontend/ as Root Directory
-       ↓
-Installs dependencies
-       ↓
-Runs ng build
-       ↓
-Generates production files
-       ↓
-Deploys static assets
-       ↓
-Provides Vercel deployment URL
-```
-
-After a successful deployment, Vercel provides a public URL such as:
-
-```text
-https://library-management-system-django-angular-xxxxx.vercel.app
-```
-
-The deployed application can then be accessed directly from a web browser.
-
-### 🔄 Continuous Deployment
-
-The Vercel project is connected to the GitHub repository.
-
-Whenever changes are pushed to the configured production branch:
-
-```text
-git add .
-git commit -m "Update application"
-git push origin main
-```
-
-Vercel automatically starts a new deployment.
-
-The deployment pipeline is therefore:
-
-```text
-Developer
-    ↓
-Local Code Changes
-    ↓
-Git Commit
-    ↓
-Git Push
-    ↓
-GitHub
-    ↓
-Vercel
-    ↓
-Install Dependencies
-    ↓
-Angular Production Build
-    ↓
-Deployment
-    ↓
-Live Application
-```
-
-### ⚠️ Backend Deployment
-
-The Django REST API is a separate backend application and is **not deployed as part of the Angular Vercel deployment**.
-
-The application architecture is:
-
-```text
-                    Production Architecture
-
-                    ┌─────────────────┐
-                    │     User        │
-                    │    Browser      │
-                    └────────┬────────┘
-                             │
-                             │ HTTPS
-                             ▼
-                    ┌─────────────────┐
-                    │  Angular 21     │
-                    │    Frontend     │
-                    │     Vercel      │
-                    └────────┬────────┘
-                             │
-                             │ HTTP/HTTPS API
-                             ▼
-                    ┌─────────────────┐
-                    │ Django REST API │
-                    │     Backend     │
-                    └────────┬────────┘
-                             │
-                             │ Database Queries
-                             ▼
-                    ┌─────────────────┐
-                    │   PostgreSQL    │
-                    │    Database     │
-                    └─────────────────┘
-```
-
-For a complete production deployment, the Django API and PostgreSQL database need to be hosted separately on suitable backend/database infrastructure.
-
-### 🔐 Environment Variables
-
-Production API configuration should be stored using environment variables rather than hardcoding URLs or credentials in the Angular source code.
+Instead, Django should read the production database connection information from an environment variable.
 
 For example:
 
 ```text
-API_BASE_URL=https://your-production-backend-url/api
+DATABASE_URL=postgresql://username:password@host/database?sslmode=require
 ```
 
-The frontend can then use the configured API URL when communicating with the Django REST API.
+The backend uses this production database URL when running on Render.
 
-Database credentials and other sensitive backend configuration should also be stored as environment variables.
+### Step 3: Verify the Database
 
-### 🧪 Production Verification
+After creating the Neon database, verify that the Django application can connect to it.
 
-After deployment, the following functionality should be tested from the public URL:
+The production database will initially be empty, so Django migrations must be applied after the backend is deployed.
 
-- Login
-- Admin dashboard
-- Member management
-- Book catalog
-- Add/Edit/Delete books
-- Borrow book
-- Return book
-- Late fee calculation
-- Overdue audit
-- CSV import/export
+---
+
+# 3. Prepare the Django Backend for Render
+
+The Django application is deployed separately from the Angular frontend.
+
+The backend directory is:
+
+```text
+backend/
+├── manage.py
+├── requirements.txt
+├── library_project/
+└── library/
+```
+
+### Step 1: Generate `requirements.txt`
+
+All required Python packages must be included in:
+
+```text
+backend/requirements.txt
+```
+
+For example:
+
+```text
+Django
+djangorestframework
+django-cors-headers
+psycopg2-binary
+```
+
+The exact versions should match the versions used by the project.
+
+### Step 2: Production Configuration
+
+The Django application needs production-specific configuration.
+
+Important settings include:
+
+```text
+DEBUG=False
+```
+
+The production backend should also configure:
+
+- Allowed hosts
+- CORS
+- Database connection
+- Secret key
+- Static files
+- Environment variables
+
+Sensitive information such as database passwords and Django secret keys should never be committed to GitHub.
+
+---
+
+# 4. Deploy Django Backend to Render
+
+### Step 1: Create a Render Web Service
+
+In Render:
+
+```text
+Dashboard
+   ↓
+New
+   ↓
+Web Service
+   ↓
+Connect GitHub Repository
+```
+
+Select the GitHub repository containing the Library Management System.
+
+### Step 2: Configure the Backend Root Directory
+
+Because the Django application is inside the `backend` directory, configure:
+
+```text
+Root Directory:
+backend
+```
+
+This tells Render that the Django application is located inside:
+
+```text
+Library_Management_System/backend/
+```
+
+### Step 3: Configure the Build Command
+
+The build command installs the Python dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Depending on the final production configuration, the build process can also include Django static-file collection.
+
+For example:
+
+```bash
+pip install -r requirements.txt
+python manage.py collectstatic --noinput
+```
+
+### Step 4: Configure the Start Command
+
+Render needs a command to start the Django production server.
+
+For a Gunicorn-based deployment:
+
+```bash
+gunicorn library_project.wsgi:application
+```
+
+The exact module path depends on the Django project's WSGI configuration.
+
+### Step 5: Configure Environment Variables
+
+In Render's **Environment Variables** section, configure the values required by Django.
+
+For example:
+
+```text
+SECRET_KEY=your-production-secret-key
+DEBUG=False
+DATABASE_URL=your-neon-postgresql-url
+```
+
+Additional variables can be configured depending on the application's production settings.
+
+### Step 6: Configure CORS
+
+Because the frontend and backend are hosted on different domains, Django must allow requests from the production Angular application.
+
+For example:
+
+```text
+https://your-angular-app.vercel.app
+```
+
+This is important because the browser considers the Vercel frontend and Render backend to be different origins.
+
+The Django backend therefore needs an appropriate CORS configuration.
+
+---
+
+# 5. Run Django Migrations on the Neon Database
+
+After the Render service is deployed, Django must create its database tables in the Neon PostgreSQL database.
+
+Run:
+
+```bash
+python manage.py migrate
+```
+
+This applies Django migrations to the production database.
+
+The process is:
+
+```text
+Django Models
+      ↓
+Django Migrations
+      ↓
+Neon PostgreSQL
+      ↓
+Database Tables
+```
+
+If the project uses the custom database seeding command, the initial data can then be created using:
+
+```bash
+python manage.py seed_db
+```
+
+This creates the required initial users/books according to the project's seed logic.
+
+---
+
+# 6. Verify the Django API on Render
+
+Once Render successfully deploys the backend, it provides a public URL such as:
+
+```text
+https://your-library-backend.onrender.com
+```
+
+The API can then be tested independently.
+
+For example:
+
+```text
+Browser / Postman
+       ↓
+Render Django API
+       ↓
+Neon PostgreSQL
+```
+
+Before connecting Angular to the backend, verify that the API itself is working correctly.
+
+Important things to test include:
+
+- Login API
+- Book APIs
+- Member APIs
+- Borrow APIs
+- Return APIs
+- Overdue APIs
+- CSV import/export APIs
+- Authentication
+- Role-based authorization
+
+---
+
+# 7. Configure Angular for the Production Backend
+
+The Angular application cannot continue using:
+
+```text
+http://127.0.0.1:8000/
+```
+
+because that points to the developer's local computer.
+
+Instead, the Angular application must communicate with the deployed Render backend.
+
+The production API URL should point to the Render deployment:
+
+```text
+https://your-library-backend.onrender.com/
+```
+
+The Angular services should therefore use the production backend URL when the application is deployed.
+
+For example:
+
+```text
+Angular
+   ↓
+HTTP Request
+   ↓
+https://your-library-backend.onrender.com/api/...
+```
+
+This is one of the most important steps in full-stack deployment.
+
+---
+
+# 8. Deploy Angular 21 Frontend to Vercel
+
+The Angular frontend is located inside:
+
+```text
+frontend/
+```
+
+Since the GitHub repository contains both frontend and backend, Vercel must be configured to deploy only the Angular application.
+
+### Step 1: Import GitHub Repository
+
+In Vercel:
+
+```text
+Dashboard
+   ↓
+Add New
+   ↓
+Project
+   ↓
+Import Git Repository
+```
+
+Select:
+
+```text
+SurajGardi/Library-Management-System-Django-Angular
+```
+
+### Step 2: Configure Root Directory
+
+Set:
+
+```text
+Root Directory:
+frontend
+```
+
+This tells Vercel:
+
+> "The application I want to build is inside the `frontend` directory."
+
+### Step 3: Configure Build Settings
+
+The Angular project is configured with:
+
+```text
+Framework Preset:
+Other / Angular
+```
+
+Build command:
+
+```bash
+ng build
+```
+
+Output directory:
+
+```text
+dist/frontend
+```
+
+The exact output directory should always be verified against the project's `angular.json` and the result of:
+
+```bash
+ng build
+```
+
+For Angular versions/configurations that generate a `browser` subdirectory, the output directory may instead be:
+
+```text
+dist/frontend/browser
+```
+
+### Step 4: Deploy
+
+Click:
+
+```text
+Deploy
+```
+
+Vercel then performs:
+
+```text
+GitHub Repository
+       ↓
+Vercel
+       ↓
+Root Directory = frontend
+       ↓
+Install npm dependencies
+       ↓
+Run ng build
+       ↓
+Generate production files
+       ↓
+Deploy static Angular files
+       ↓
+Public Vercel URL
+```
+
+---
+
+# 9. Connect Angular → Render → Neon
+
+After all three services are deployed, the complete production request flow becomes:
+
+```text
+┌──────────────────────────────┐
+│          Browser             │
+│          User                │
+└──────────────┬───────────────┘
+               │
+               │ HTTPS
+               ▼
+┌──────────────────────────────┐
+│       Angular 21             │
+│       Vercel                 │
+│                              │
+│  Login / Books / Members /   │
+│  Borrow / Return / Dashboard │
+└──────────────┬───────────────┘
+               │
+               │ HTTPS REST API
+               ▼
+┌──────────────────────────────┐
+│       Django REST API        │
+│       Render                 │
+│                              │
+│ Authentication               │
+│ Business Logic               │
+│ OOP Models                   │
+│ API Views                    │
+│ Decorators                   │
+│ CSV Operations               │
+└──────────────┬───────────────┘
+               │
+               │ SQL / PostgreSQL
+               ▼
+┌──────────────────────────────┐
+│       PostgreSQL             │
+│       Neon                   │
+│                              │
+│ Books                        │
+│ Members                      │
+│ Borrow Records               │
+│ Users                        │
+└──────────────────────────────┘
+```
+
+For example, when an admin logs in:
+
+```text
+1. User enters email/password
+             ↓
+2. Angular sends HTTP request
+             ↓
+3. Request reaches Django API on Render
+             ↓
+4. Django validates the credentials
+             ↓
+5. Django queries PostgreSQL on Neon
+             ↓
+6. Neon returns the database result
+             ↓
+7. Django sends API response
+             ↓
+8. Angular receives the response
+             ↓
+9. Dashboard is displayed
+```
+
+---
+
+# 10. CORS Configuration
+
+Because the applications are hosted on different domains:
+
+```text
+Frontend:
+https://your-app.vercel.app
+
+Backend:
+https://your-api.onrender.com
+```
+
+the browser treats them as different origins.
+
+Therefore, Django CORS configuration must allow the Vercel frontend.
+
+Conceptually:
+
+```text
+Vercel Angular Application
+          │
+          │ Cross-Origin Request
+          ▼
+Django REST API
+          │
+          │ CORS validation
+          ▼
+Allowed → Process Request
+```
+
+The production Vercel domain should be added to the Django CORS allowed origins.
+
+---
+
+# 11. Production Environment Variables
+
+Sensitive production configuration should not be committed directly to GitHub.
+
+Typical backend environment variables include:
+
+```text
+SECRET_KEY
+DEBUG
+DATABASE_URL
+ALLOWED_HOSTS
+CORS_ALLOWED_ORIGINS
+```
+
+The values are configured on the backend hosting platform.
+
+For the frontend, the production API URL should also be configured through the appropriate Angular environment/configuration mechanism used by the project.
+
+The important principle is:
+
+```text
+Source Code
+     ↓
+No passwords
+No database credentials
+No secret keys
+     ↓
+Environment Variables
+     ↓
+Production Services
+```
+
+---
+
+# 12. Continuous Deployment
+
+The deployment platforms are connected to the GitHub repository.
+
+The development workflow becomes:
+
+```text
+Developer
+    ↓
+Modify Code Locally
+    ↓
+Test Locally
+    ↓
+git add .
+    ↓
+git commit
+    ↓
+git push origin main
+    ↓
+GitHub
+    │
+    ├──────────────► Vercel
+    │                  ↓
+    │              Angular Build
+    │                  ↓
+    │              Frontend Deployment
+    │
+    └──────────────► Render
+                       ↓
+                   Django Build
+                       ↓
+                   Backend Deployment
+                       ↓
+                   Render API
+                       ↓
+                   Neon PostgreSQL
+```
+
+When the configured production branch is updated, Vercel and Render can automatically create new deployments from the latest GitHub commit.
+
+---
+
+# 13. Production Testing Checklist
+
+After deploying all three components, test the complete application from the public Vercel URL.
+
+### Authentication
+
+- Login as Admin
+- Login as Member
 - Logout
-- Role-based access control
+- Invalid credentials
+- Role-based access
 
-A successful deployment should therefore be verified from the actual public URL rather than only from `localhost`.
+### Books
 
-### 📌 Deployment Summary
+- View books
+- Add book
+- Edit book
+- Delete book
+- Search/filter books
+- Verify ISBN validation
 
-| Component | Technology | Deployment |
-|---|---|---|
-| Frontend | Angular 21 | Vercel |
-| Backend | Django 5.x + DRF | Separate backend hosting |
-| Database | PostgreSQL | Separate database hosting |
-| Source Code | Git + GitHub | GitHub repository |
-| Frontend Build | Angular CLI | `ng build` |
-| Frontend Root | Angular application | `frontend/` |
-| Production Output | Angular build | `dist/frontend` |
+### Members
+
+- Register member
+- View members
+- Edit member information
+- Delete member
+
+### Borrow & Return
+
+- Borrow book
+- View active loans
+- Return book
+- Verify book availability
+- Verify borrow history
+
+### Late Fees
+
+- Test simulated future return date
+- Verify late fee calculation
+- Verify overdue records
+
+### Overdue Audit
+
+- Login as Admin
+- Open Overdue Audit
+- Verify generator-based overdue records
+
+### CSV
+
+- Import books
+- Export books
+- Verify imported records in PostgreSQL
+
+---
+
+# 14. Final Production Architecture
+
+The final deployed application consists of three independently hosted components:
+
+| Component | Technology | Platform | Responsibility |
+|---|---|---|---|
+| Frontend | Angular 21 | Vercel | User interface |
+| Backend | Django 5.x + DRF | Render | REST API and business logic |
+| Database | PostgreSQL | Neon | Persistent application data |
+| Source Control | Git + GitHub | GitHub | Source code and deployment trigger |
+
+The complete architecture is:
+
+```text
+                         INTERNET
+                            │
+                            ▼
+                  ┌──────────────────┐
+                  │   Vercel         │
+                  │   Angular 21     │
+                  │   Frontend       │
+                  └────────┬─────────┘
+                           │
+                       HTTPS/API
+                           │
+                           ▼
+                  ┌──────────────────┐
+                  │   Render         │
+                  │   Django + DRF   │
+                  │   Backend        │
+                  └────────┬─────────┘
+                           │
+                      PostgreSQL
+                           │
+                           ▼
+                  ┌──────────────────┐
+                  │   Neon           │
+                  │   PostgreSQL     │
+                  │   Database       │
+                  └──────────────────┘
+```
+
+### Deployment Summary
+
+```text
+GitHub
+  │
+  ├── frontend/ ──────► Vercel
+  │                       │
+  │                       │ HTTPS
+  │                       ▼
+  │                    Angular 21
+  │
+  └── backend/ ───────► Render
+                          │
+                          │ PostgreSQL
+                          ▼
+                        Neon
+                          │
+                          ▼
+                     PostgreSQL
+```
+
+This deployment architecture separates the application into three layers:
+
+**Presentation Layer → Angular/Vercel**
+
+**Application Layer → Django REST Framework/Render**
+
+**Data Layer → PostgreSQL/Neon**
+
+This separation makes the application easier to deploy, maintain, scale, and troubleshoot.
