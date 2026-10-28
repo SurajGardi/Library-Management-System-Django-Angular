@@ -161,3 +161,228 @@ This project explicitly implements and demonstrates the following core concepts:
   * **Parent to Child (`@Input()`)**: Employs `@Input() showModal`, `@Input() isEditMode`, and `@Input() activeBook` properties to pass state into the form.
   * **Child to Parent (`@Output()`)**: Employs `@Output() save` and `@Output() cancel` `EventEmitter` signals to trigger callbacks on the parent component when the form is submitted or closed.
 
+--- 
+
+## ☁️ Production Deployment
+
+The Angular frontend of this project is deployed on **Vercel** and connected to the GitHub repository.
+
+### Frontend Deployment – Vercel
+
+The frontend is located inside the `frontend/` directory of the repository. Since the repository contains both the Django backend and Angular frontend, Vercel is configured to build and deploy only the Angular application.
+
+#### 1. Push the Project to GitHub
+
+The complete project is maintained in a GitHub repository:
+
+- Backend: Django REST Framework
+- Frontend: Angular 21
+- Database: PostgreSQL
+
+The repository structure is:
+
+```text
+Library_Management_System/
+├── backend/
+└── frontend/
+```
+
+#### 2. Import the GitHub Repository into Vercel
+
+1. Sign in to Vercel.
+2. Select **Add New → Project**.
+3. Import the GitHub repository.
+4. Select the required repository and branch.
+5. Since the Angular application is inside the `frontend/` directory, configure the project root as:
+
+```text
+frontend
+```
+
+#### 3. Configure the Angular Build
+
+In Vercel's **Build and Deployment** settings, configure the Angular project as follows:
+
+| Setting | Value |
+|---|---|
+| Framework Preset | Other / Angular |
+| Root Directory | `frontend` |
+| Build Command | `ng build` |
+| Output Directory | `dist/frontend` |
+
+The build command compiles the Angular application into production-ready static files.
+
+The generated production files are placed inside:
+
+```text
+frontend/dist/frontend/
+```
+
+> **Note:** The exact output directory depends on the Angular project's `angular.json` configuration. Always verify the generated `dist` structure after running `ng build`.
+
+#### 4. Install Dependencies
+
+Vercel automatically installs the Node.js dependencies from the `frontend/package.json` file during deployment.
+
+The Angular application uses:
+
+- Angular 21
+- TypeScript
+- RxJS
+- Angular Router
+- Angular HTTP Client
+- Standalone Component Architecture
+
+#### 5. Deploy the Application
+
+After configuring the project, click **Deploy**.
+
+Vercel performs the following process:
+
+```text
+GitHub Repository
+       ↓
+Vercel detects project
+       ↓
+Uses frontend/ as Root Directory
+       ↓
+Installs dependencies
+       ↓
+Runs ng build
+       ↓
+Generates production files
+       ↓
+Deploys static assets
+       ↓
+Provides Vercel deployment URL
+```
+
+After a successful deployment, Vercel provides a public URL such as:
+
+```text
+https://library-management-system-django-angular-xxxxx.vercel.app
+```
+
+The deployed application can then be accessed directly from a web browser.
+
+### 🔄 Continuous Deployment
+
+The Vercel project is connected to the GitHub repository.
+
+Whenever changes are pushed to the configured production branch:
+
+```text
+git add .
+git commit -m "Update application"
+git push origin main
+```
+
+Vercel automatically starts a new deployment.
+
+The deployment pipeline is therefore:
+
+```text
+Developer
+    ↓
+Local Code Changes
+    ↓
+Git Commit
+    ↓
+Git Push
+    ↓
+GitHub
+    ↓
+Vercel
+    ↓
+Install Dependencies
+    ↓
+Angular Production Build
+    ↓
+Deployment
+    ↓
+Live Application
+```
+
+### ⚠️ Backend Deployment
+
+The Django REST API is a separate backend application and is **not deployed as part of the Angular Vercel deployment**.
+
+The application architecture is:
+
+```text
+                    Production Architecture
+
+                    ┌─────────────────┐
+                    │     User        │
+                    │    Browser      │
+                    └────────┬────────┘
+                             │
+                             │ HTTPS
+                             ▼
+                    ┌─────────────────┐
+                    │  Angular 21     │
+                    │    Frontend     │
+                    │     Vercel      │
+                    └────────┬────────┘
+                             │
+                             │ HTTP/HTTPS API
+                             ▼
+                    ┌─────────────────┐
+                    │ Django REST API │
+                    │     Backend     │
+                    └────────┬────────┘
+                             │
+                             │ Database Queries
+                             ▼
+                    ┌─────────────────┐
+                    │   PostgreSQL    │
+                    │    Database     │
+                    └─────────────────┘
+```
+
+For a complete production deployment, the Django API and PostgreSQL database need to be hosted separately on suitable backend/database infrastructure.
+
+### 🔐 Environment Variables
+
+Production API configuration should be stored using environment variables rather than hardcoding URLs or credentials in the Angular source code.
+
+For example:
+
+```text
+API_BASE_URL=https://your-production-backend-url/api
+```
+
+The frontend can then use the configured API URL when communicating with the Django REST API.
+
+Database credentials and other sensitive backend configuration should also be stored as environment variables.
+
+### 🧪 Production Verification
+
+After deployment, the following functionality should be tested from the public URL:
+
+- Login
+- Admin dashboard
+- Member management
+- Book catalog
+- Add/Edit/Delete books
+- Borrow book
+- Return book
+- Late fee calculation
+- Overdue audit
+- CSV import/export
+- Logout
+- Role-based access control
+
+A successful deployment should therefore be verified from the actual public URL rather than only from `localhost`.
+
+### 📌 Deployment Summary
+
+| Component | Technology | Deployment |
+|---|---|---|
+| Frontend | Angular 21 | Vercel |
+| Backend | Django 5.x + DRF | Separate backend hosting |
+| Database | PostgreSQL | Separate database hosting |
+| Source Code | Git + GitHub | GitHub repository |
+| Frontend Build | Angular CLI | `ng build` |
+| Frontend Root | Angular application | `frontend/` |
+| Production Output | Angular build | `dist/frontend` |
